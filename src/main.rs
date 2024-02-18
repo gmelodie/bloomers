@@ -1,7 +1,7 @@
 use bloomers::BloomFilter;
 
 fn main() {
-    let mut filter = BloomFilter::new();
+    let mut filter = BloomFilter::new(1024);
     filter.add(3);
     filter.add(4);
     filter.add(6);
