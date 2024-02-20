@@ -1,4 +1,5 @@
 use num::Signed;
+use rand::Rng;
 use std::convert::TryInto;
 
 pub trait Hashable: TryInto<usize> + Clone + Signed {}
@@ -9,17 +10,24 @@ pub fn new_hash<T>(n: usize) -> Box<dyn Fn(T) -> (usize, u8)>
 where
     T: Hashable,
 {
+    let mut rng = rand::thread_rng();
+    let salt: usize = rng.gen();
+
     Box::new(move |item: T| {
         // naive approach to a "hash" function using mod and division
-        // (e.g. -8 will be 9th bit; 0 will be 1st bit; etc)
-        let item_abs = match item.abs().try_into() {
+        // added a salt to make every hash slightly different
+        let mut hash = match item.abs().try_into() {
             Ok(abs_item) => abs_item,
             Err(_) => panic!("Unable to convert type to usize"),
         };
-        let byte_offset = item_abs / n;
-        let bit_offset = item_abs % n;
 
-        assert!(byte_offset < n); // check if it doesn't exceed vec capacity
+        let number_of_bytes = (n + 7) / 8;
+        hash += salt;
+
+        let byte_offset = (hash / 8) % number_of_bytes;
+        let bit_offset = hash % 8;
+
+        assert!(byte_offset < number_of_bytes); // check if it doesn't exceed vec capacity
         assert!(bit_offset < 8);
         let byte: u8 = 0b0000_0001;
         (byte_offset, byte << bit_offset)

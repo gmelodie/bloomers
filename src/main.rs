@@ -1,7 +1,7 @@
 use bloomers::BloomFilter;
 
 fn main() {
-    let mut filter = BloomFilter::new(1024);
+    let mut filter = BloomFilter::new(4096, 0.0001);
     filter.add(3);
     filter.add(4);
     filter.add(6);
@@ -9,5 +9,5 @@ fn main() {
     assert!(filter.contains(4));
     assert!(!filter.contains(5)); // does not contain 5
     assert!(filter.contains(6));
-    println!("bloom filter")
+    println!("Done using!")
 }
